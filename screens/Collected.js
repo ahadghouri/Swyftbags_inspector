@@ -81,8 +81,9 @@ const Collected = () => {
             <Text>Capacity: {trip.capacity}kg</Text>
             <Text>Transport Mode: {trip.tmode}</Text>
             <Text>Description: {trip.description}</Text>
-            <Text>Sender: {trip.bidderEmail}</Text>
-            <Text>Traveler: {trip.email}</Text>
+            <Text>Receiver: {trip.recvName}</Text>
+            <Text>Receiver CNIC: {trip.recvCnic}</Text>
+            <Text>Receiver Phone no: {trip.recvNumber}</Text>
             <Button title="Collected" onPress={() => handleCollected(trip._id)} />
           </View>
         ))
