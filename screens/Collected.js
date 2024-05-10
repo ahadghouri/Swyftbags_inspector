@@ -7,6 +7,10 @@ import Constants from "expo-constants";
 const Collected = () => {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+  const[travellerEmail, setTravellerEmail]=useState("");
+  const[senderEmail, setSenderEmail]=useState("");
+  const [currentTripId, setCurrentTripId] = useState("");
+  const [depositAmount, setDepositAmount] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -34,20 +38,61 @@ const Collected = () => {
       setTrips(response.data);
       setLoading(false);
       console.log("Fetched trips:", response.data);
+
+      if (response.data.length > 0) {
+        setSenderEmail(response.data[0].bidderEmail);
+        setTravellerEmail(response.data[0].email);
+        setCurrentTripId(response.data[0]._id);
+      }
+      
+
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
     }
   };
   
-  const handleCollected = async (tripId) => {
+  const handleCollected = async(tripId, recvName) => {
     try {
       const token = await AsyncStorage.getItem("token");
 
-      // Update trip status to "completed" when received
+      // First API call: Update trip status to "completed"
       await axios.put(
-        Constants.expoConfig.extra.IP_ADDRESS + `/inspector/trips/${tripId}`,
+        `${Constants.expoConfig.extra.IP_ADDRESS}/inspector/trips/${tripId}`,
         { status: "completed" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+
+      const bidResponse = await axios.get(
+        `${Constants.expoConfig.extra.IP_ADDRESS}/bids/accepted`,
+        {
+          params: { tripId: tripId, recvName: recvName },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const bidAmount = bidResponse.data.bid;
+
+      await axios.post(
+        `${Constants.expoConfig.extra.IP_ADDRESS}/wallet/deposit`,
+        { email: travellerEmail, amount: bidAmount },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      await axios.post(
+        `${Constants.expoConfig.extra.IP_ADDRESS}/friends/remove`,
+        { senderEmail: senderEmail, travellerEmail: travellerEmail },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -57,9 +102,10 @@ const Collected = () => {
 
       fetchData();
     } catch (error) {
-      console.error("Error updating trip status:", error);
+      console.error("Error updating trip status or depositing amount:", error);
     }
   };
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -84,7 +130,7 @@ const Collected = () => {
             <Text>Receiver: {trip.recvName}</Text>
             <Text>Receiver CNIC: {trip.recvCnic}</Text>
             <Text>Receiver Phone no: {trip.recvNumber}</Text>
-            <Button title="Collected" onPress={() => handleCollected(trip._id)} />
+            <Button title="Collected" onPress={() => handleCollected(trip._id, trip.recvName)} />
           </View>
         ))
       )}
