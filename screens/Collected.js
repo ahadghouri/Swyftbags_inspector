@@ -100,6 +100,36 @@ const Collected = () => {
         }
       );
 
+      // Send email to sender
+    await axios.post(
+      `${Constants.expoConfig.extra.IP_ADDRESS}/sendEmailNotification`,
+      {
+        email: senderEmail,
+        subject: 'Trip Completion Notification',
+        message: `Your trip with ID ${tripId} has been completed successfully.`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Send email to traveler
+    await axios.post(
+      `${Constants.expoConfig.extra.IP_ADDRESS}/sendEmailNotification`,
+      {
+        email: travellerEmail,
+        subject: 'Trip Completion Notification',
+        message: `Your trip with ID ${tripId} has been completed successfully.`
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
       fetchData();
     } catch (error) {
       console.error("Error updating trip status or depositing amount:", error);
@@ -127,6 +157,8 @@ const Collected = () => {
             <Text>Capacity: {trip.capacity}kg</Text>
             <Text>Transport Mode: {trip.tmode}</Text>
             <Text>Description: {trip.description}</Text>
+            <Text>Traveller: {trip.email}</Text>
+            <Text>Sender: {trip.bidderEmail}</Text>
             <Text>Receiver: {trip.recvName}</Text>
             <Text>Receiver CNIC: {trip.recvCnic}</Text>
             <Text>Receiver Phone no: {trip.recvNumber}</Text>
