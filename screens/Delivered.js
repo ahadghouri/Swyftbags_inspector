@@ -82,6 +82,8 @@ const Delivered = () => {
             <Text>Transport Mode: {trip.tmode}</Text>
             <Text>Description: {trip.description}</Text>
             <Text>Sender: {trip.bidderEmail}</Text>
+            
+
             <Button title="Received" onPress={() => handleReceived(trip._id)} />
           </View>
         ))
