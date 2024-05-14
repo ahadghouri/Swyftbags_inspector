@@ -27,7 +27,7 @@
       "favicon": "./assets/favicon.png"
     },
     "extra": {
-      "IP_ADDRESS": "http://192.168.18.100:3001"
+      "IP_ADDRESS": "https://swyftbags-backend.onrender.com"
     }
   }
 }
