@@ -44,12 +44,27 @@ const Dashboard = () => {
     navigation.navigate("Login"); // Navigate to the login page after logout
   };
 
-  const updateUserStatus = async (userId, status) => {
+  const updateUserStatus = async (userId, status, userEmail) => {
     try {
       await axios.post(
         Constants.expoConfig.extra.IP_ADDRESS + "/admin/update-status",
         { userId, status }
       );
+
+      const emailDetails = {
+        email: userEmail,
+        subject: status === "approved" ? "Account Approved" : "Account Rejected",
+        message: status === "approved" 
+          ? `Your account has been approved. You can now proceed with our service.\n\nBest Regards,\nSwyftbags`
+          : `We regret to inform you that your account has been rejected.\n\nBest Regards,\nSwyftbags`
+      };
+
+      // Send email notification
+      await axios.post(
+        Constants.expoConfig.extra.IP_ADDRESS + "/sendEmailNotification",
+        emailDetails
+      );
+
       fetchPendingUsers(); // Refresh list after updating
     } catch (error) {
       console.error("Failed to update user status", error);
@@ -91,11 +106,11 @@ const Dashboard = () => {
               <View style={styles.buttonContainer}>
                 <Button
                   title="Approve"
-                  onPress={() => updateUserStatus(user._id, "approved")}
+                  onPress={() => updateUserStatus(user._id, "approved",user.email)}
                 />
                 <Button
                   title="Reject"
-                  onPress={() => updateUserStatus(user._id, "rejected")}
+                  onPress={() => updateUserStatus(user._id, "rejected",user.email)}
                 />
               </View>
             </View>
