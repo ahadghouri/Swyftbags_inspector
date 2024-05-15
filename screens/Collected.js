@@ -121,7 +121,7 @@ const Collected = () => {
       {
         email: travellerEmail,
         subject: 'Trip Completion Notification',
-        message: `Your trip with ID ${tripId} has been completed successfully.`
+        message: `Your trip with ID ${tripId} has been completed successfully, wallet balance is updated.`
       },
       {
         headers: {
